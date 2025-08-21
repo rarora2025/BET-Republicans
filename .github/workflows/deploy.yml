@@ -26,14 +26,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: npm ci
-      
     - name: Build static files
       run: |
         mkdir -p dist
@@ -43,10 +35,13 @@ jobs:
         touch dist/.nojekyll
         # Remove any remaining documentation files
         find dist -name "*.md" -delete
-        # Ensure index.html is the main file and is in root
+        # Verify files are copied correctly
+        echo "=== DIST FOLDER CONTENTS ==="
         ls -la dist/
+        echo "=== INDEX.HTML CHECK ==="
         echo "index.html exists: $(test -f dist/index.html && echo 'YES' || echo 'NO')"
-        echo "Website built successfully at $(date)" > dist/build-info.txt
+        echo "index.html size: $(wc -c < dist/index.html) bytes"
+        echo "=== WEBSITE BUILT SUCCESSFULLY ==="
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
