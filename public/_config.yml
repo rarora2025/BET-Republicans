@@ -1,0 +1,49 @@
+# Jekyll configuration for GitHub Pages
+# This ensures the website is served instead of the README
+
+# Site settings
+title: "BET Republicans - Endorsement Website"
+description: "Greenwich Republican Board of Estimate and Taxation Endorsement Website"
+url: "https://rarora2025.github.io/BET-Republicans"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Collections
+collections:
+  _pages:
+    output: true
+    permalink: /:path/
+
+# Include files
+include:
+  - _pages
+  - assets
+  - images
+  - css
+  - js
+  - "*.html"
+  - "*.css"
+  - "*.js"
+
+# Exclude files
+exclude:
+  - README.md
+  - README-GITHUB-PAGES.md
+  - DEPLOYMENT.md
+  - .gitignore
+  - .github
+  - node_modules
+  - package.json
+  - package-lock.json
+  - server.js
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"

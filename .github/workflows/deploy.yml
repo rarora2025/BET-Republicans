@@ -37,8 +37,15 @@ jobs:
       run: |
         mkdir -p dist
         cp -r public/* dist/
-        cp package.json dist/
-        cp README-GITHUB-PAGES.md dist/README.md
+        # Ensure .nojekyll file is present to bypass Jekyll processing
+        touch dist/.nojekyll
+        # Remove any README files from dist to avoid conflicts
+        rm -f dist/README*.md
+        rm -f dist/DEPLOYMENT.md
+        # Ensure index.html is the main file
+        echo "Website built successfully at $(date)" > dist/build-info.txt
+        # List files to verify deployment
+        ls -la dist/
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
