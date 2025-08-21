@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endorse Our Republican Team for BET</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Fixed Header Bar -->
+    <header class="fixed-header" id="fixedHeader">
+        <div class="container">
+            <div class="fixed-header-content">
+                <div>
+                    <h1 class="fixed-header-title">Greenwich Republicans</h1>
+                    <p class="fixed-header-subtitle">Board of Estimate and Taxation</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Message Section -->
+    <section class="message-section">
+        <div class="container">
+            <div class="message-content" data-aos="fade-up">
+                <div class="header-content">
+                    <h1 class="main-title">Greenwich Republicans</h1>
+                    <h2 class="main-subtitle">Board of Estimate and Taxation</h2>
+                </div>
+                <p class="message-text">
+                    This September, Greenwich Republicans will choose the team to represent us on the Board of Estimate and Taxation (BET). 
+                    Our endorsed slate is running together as independent thinkers committed to fiscal responsibility, transparency, and protecting taxpayers.
+                </p>
+                <p class="message-text">
+                    We are asking for your support. By signing this form, you are endorsing our full six-member team as the Republican slate for BET. 
+                    Even if you know just one or two of us personally, your endorsement signals confidence in the values and leadership we represent together.
+                </p>
+                <div class="cta-button-container">
+                    <button class="cta-button" onclick="scrollToForm()">
+                        <span>Sign the Form</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-number" id="endorsement-count">0</div>
+                    <div class="stat-label">Endorsements</div>
+                </div>
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Candidates</div>
+                </div>
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Republican</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section" id="endorsement-form">
+        <div class="container">
+            <div class="form-container" data-aos="fade-up">
+                <h2>Endorsement Form</h2>
+                <p class="form-subtitle">Show your support for fiscal responsibility and transparency</p>
+                
+                <form id="endorsementForm" class="endorsement-form">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message (Optional)</label>
+                        <textarea id="message" name="message" rows="4" placeholder="Share why you're supporting our team..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-button">
+                        <span>Submit Endorsement</span>
+                        <i class="fas fa-check"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Endorsements -->
+    <section class="endorsements-section">
+        <div class="container">
+            <h2>Recent Endorsements</h2>
+            <div class="endorsements-grid" id="endorsements-grid">
+                <!-- Endorsements will be populated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Greenwich Republicans. All rights reserved.</p>
+            <p>Thank you for standing with us. With your help, we can show broad community support for a team that puts Greenwich first.</p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h3>Thank You!</h3>
+            </div>
+            <p>Your endorsement has been submitted successfully. Thank you for supporting our Republican team!</p>
+            <button class="modal-button" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="script-static.js"></script>
+</body>
+</html>
