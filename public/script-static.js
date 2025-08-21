@@ -2,6 +2,11 @@
 let endorsements = [];
 let endorsementCount = 0;
 
+// Cloud database configuration - using a simple JSON hosting service
+const CLOUD_DB_URL = 'https://api.jsonbin.io/v3/b';
+const CLOUD_DB_KEY = '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB07tlCe./AJnWm';
+let CLOUD_DB_ID = null; // Will be created on first use
+
 // DOM elements
 const endorsementForm = document.getElementById('endorsementForm');
 const endorsementsGrid = document.getElementById('endorsements-grid');
@@ -13,8 +18,7 @@ const loadingSpinner = document.getElementById('loadingSpinner');
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
-    loadEndorsementsFromStorage();
-    updateEndorsementCount();
+    initializeCloudDatabase();
     
     // Add scroll animations
     addScrollAnimations();
@@ -53,8 +57,60 @@ function setupEventListeners() {
     });
 }
 
-// Handle form submission (static version)
-function handleFormSubmission(event) {
+// Initialize cloud database
+async function initializeCloudDatabase() {
+    try {
+        // Try to create a new bin for this website
+        const createResponse = await fetch(CLOUD_DB_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': CLOUD_DB_KEY
+            },
+            body: JSON.stringify({
+                endorsements: [],
+                website: 'BET-Republicans',
+                created: new Date().toISOString()
+            })
+        });
+        
+        if (createResponse.ok) {
+            const data = await createResponse.json();
+            CLOUD_DB_ID = data.metadata.id;
+            console.log('Created new cloud database with ID:', CLOUD_DB_ID);
+            
+            // Store the ID in localStorage for future use
+            localStorage.setItem('bet-cloud-db-id', CLOUD_DB_ID);
+        } else {
+            throw new Error('Failed to create cloud database');
+        }
+        
+        // Load existing endorsements
+        await loadEndorsementsFromCloud();
+        updateEndorsementCount();
+        
+    } catch (error) {
+        console.error('Error initializing cloud database:', error);
+        
+        // Try to use existing ID from localStorage
+        const existingId = localStorage.getItem('bet-cloud-db-id');
+        if (existingId) {
+            CLOUD_DB_ID = existingId;
+            console.log('Using existing cloud database ID:', CLOUD_DB_ID);
+            await loadEndorsementsFromCloud();
+            updateEndorsementCount();
+        } else {
+            // Fallback to demo mode
+            console.log('Using demo mode - endorsements will not persist');
+            endorsements = [];
+            updateEndorsementsDisplay();
+            updateEndorsementCount();
+        }
+    }
+}
+
+// Handle form submission (cloud version)
+async function handleFormSubmission(event) {
     event.preventDefault();
     
     const formData = new FormData(endorsementForm);
@@ -71,13 +127,14 @@ function handleFormSubmission(event) {
     // Show loading spinner
     showLoading();
     
-    // Simulate processing delay
-    setTimeout(() => {
-        // Add to local array
-        endorsements.unshift(endorsementData);
-        
-        // Save to localStorage
-        saveEndorsementsToStorage();
+    try {
+        if (CLOUD_DB_ID) {
+            // Save to cloud database
+            await saveEndorsementToCloud(endorsementData);
+        } else {
+            // Demo mode - just add locally
+            endorsements.unshift(endorsementData);
+        }
         
         // Update UI
         updateEndorsementsDisplay();
@@ -92,8 +149,12 @@ function handleFormSubmission(event) {
         // Add celebration animation
         addCelebrationAnimation();
         
+    } catch (error) {
+        console.error('Error submitting endorsement:', error);
+        showError('Failed to submit endorsement. Please try again.');
+    } finally {
         hideLoading();
-    }, 1000);
+    }
 }
 
 // Generate unique ID
@@ -101,37 +162,69 @@ function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Load endorsements from localStorage
-function loadEndorsementsFromStorage() {
+// Save endorsement to cloud database
+async function saveEndorsementToCloud(endorsementData) {
+    if (!CLOUD_DB_ID) {
+        throw new Error('Cloud database not initialized');
+    }
+    
     try {
-        const stored = localStorage.getItem('bet-endorsements');
-        if (stored) {
-            endorsements = JSON.parse(stored);
-            updateEndorsementsDisplay();
-            console.log('Loaded endorsements from localStorage:', endorsements.length);
+        // Add new endorsement to local array first
+        endorsements.unshift(endorsementData);
+        
+        // Save entire array to cloud
+        const saveResponse = await fetch(`${CLOUD_DB_URL}/${CLOUD_DB_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': CLOUD_DB_KEY
+            },
+            body: JSON.stringify({
+                endorsements: endorsements,
+                lastUpdated: new Date().toISOString()
+            })
+        });
+        
+        if (!saveResponse.ok) {
+            throw new Error('Failed to save to cloud database');
         }
+        
+        console.log('Endorsement saved to cloud successfully');
+        
     } catch (error) {
-        console.error('Error loading endorsements from localStorage:', error);
-        endorsements = [];
+        console.error('Error saving to cloud:', error);
+        // Remove from local array if cloud save failed
+        endorsements.shift();
+        throw error;
     }
 }
 
-// Save endorsements to localStorage
-function saveEndorsementsToStorage() {
+// Load endorsements from cloud database
+async function loadEndorsementsFromCloud() {
+    if (!CLOUD_DB_ID) {
+        console.log('No cloud database ID available');
+        return;
+    }
+    
     try {
-        localStorage.setItem('bet-endorsements', JSON.stringify(endorsements));
-        console.log('Saved endorsements to localStorage:', endorsements.length);
+        const response = await fetch(`${CLOUD_DB_URL}/${CLOUD_DB_ID}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
         
-        // Also save to sessionStorage as backup
-        sessionStorage.setItem('bet-endorsements', JSON.stringify(endorsements));
-    } catch (error) {
-        console.error('Error saving endorsements to localStorage:', error);
-        // Try to save to sessionStorage as fallback
-        try {
-            sessionStorage.setItem('bet-endorsements', JSON.stringify(endorsements));
-        } catch (fallbackError) {
-            console.error('Error saving to sessionStorage:', fallbackError);
+        if (response.ok) {
+            const data = await response.json();
+            endorsements = data.record.endorsements || [];
+            updateEndorsementsDisplay();
+            console.log('Loaded endorsements from cloud:', endorsements.length);
+        } else {
+            console.log('No endorsements found in cloud, starting fresh');
+            endorsements = [];
         }
+    } catch (error) {
+        console.error('Error loading endorsements from cloud:', error);
+        endorsements = [];
     }
 }
 
@@ -462,4 +555,4 @@ function validateField(event) {
 // Setup form validation
 setupFormValidation();
 
-console.log('✨ BET Endorsement Website Static JavaScript Loaded Successfully!');
+console.log('✨ BET Endorsement Website Cloud JavaScript Loaded Successfully!');

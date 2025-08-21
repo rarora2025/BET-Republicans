@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Test - BET Republicans</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; background: #1e3a8a; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #3b82f6; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>BET Republicans - Storage Test</h1>
+    
+    <div class="test-section">
+        <h3>Test localStorage</h3>
+        <button onclick="testLocalStorage()">Test localStorage</button>
+        <button onclick="clearLocalStorage()">Clear localStorage</button>
+        <div id="localStorageResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Endorsement Storage</h3>
+        <button onclick="addTestEndorsement()">Add Test Endorsement</button>
+        <button onclick="loadEndorsements()">Load Endorsements</button>
+        <button onclick="clearEndorsements()">Clear Endorsements</button>
+        <div id="endorsementResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Browser Info</h3>
+        <div id="browserInfo" class="result"></div>
+    </div>
+
+    <script>
+        // Test localStorage functionality
+        function testLocalStorage() {
+            try {
+                const testKey = 'bet-test';
+                const testValue = 'test-value-' + Date.now();
+                
+                localStorage.setItem(testKey, testValue);
+                const retrieved = localStorage.getItem(testKey);
+                
+                if (retrieved === testValue) {
+                    document.getElementById('localStorageResult').innerHTML = 
+                        '✅ localStorage is working! Test value stored and retrieved successfully.';
+                } else {
+                    document.getElementById('localStorageResult').innerHTML = 
+                        '❌ localStorage test failed. Expected: ' + testValue + ', Got: ' + retrieved;
+                }
+            } catch (error) {
+                document.getElementById('localStorageResult').innerHTML = 
+                    '❌ localStorage error: ' + error.message;
+            }
+        }
+        
+        // Test endorsement storage
+        function addTestEndorsement() {
+            try {
+                const testEndorsement = {
+                    id: 'test-' + Date.now(),
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    message: 'This is a test endorsement',
+                    timestamp: new Date().toISOString()
+                };
+                
+                let endorsements = JSON.parse(localStorage.getItem('bet-endorsements') || '[]');
+                endorsements.unshift(testEndorsement);
+                localStorage.setItem('bet-endorsements', JSON.stringify(endorsements));
+                
+                document.getElementById('endorsementResult').innerHTML = 
+                    '✅ Test endorsement added! Total endorsements: ' + endorsements.length;
+            } catch (error) {
+                document.getElementById('endorsementResult').innerHTML = 
+                    '❌ Error adding test endorsement: ' + error.message;
+            }
+        }
+        
+        function loadEndorsements() {
+            try {
+                const endorsements = JSON.parse(localStorage.getItem('bet-endorsements') || '[]');
+                document.getElementById('endorsementResult').innerHTML = 
+                    '📊 Loaded endorsements: ' + endorsements.length + '<br>' +
+                    JSON.stringify(endorsements, null, 2);
+            } catch (error) {
+                document.getElementById('endorsementResult').innerHTML = 
+                    '❌ Error loading endorsements: ' + error.message;
+            }
+        }
+        
+        function clearEndorsements() {
+            try {
+                localStorage.removeItem('bet-endorsements');
+                document.getElementById('endorsementResult').innerHTML = 
+                    '🗑️ Endorsements cleared!';
+            } catch (error) {
+                document.getElementById('endorsementResult').innerHTML = 
+                    '❌ Error clearing endorsements: ' + error.message;
+            }
+        }
+        
+        function clearLocalStorage() {
+            try {
+                localStorage.clear();
+                document.getElementById('localStorageResult').innerHTML = 
+                    '🗑️ localStorage cleared!';
+            } catch (error) {
+                document.getElementById('localStorageResult').innerHTML = 
+                    '❌ Error clearing localStorage: ' + error.message;
+            }
+        }
+        
+        // Show browser info
+        function showBrowserInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                localStorage: typeof(Storage) !== "undefined" ? "Supported" : "Not Supported",
+                sessionStorage: typeof(Storage) !== "undefined" ? "Supported" : "Not Supported",
+                cookies: navigator.cookieEnabled ? "Enabled" : "Disabled",
+                platform: navigator.platform,
+                language: navigator.language
+            };
+            
+            document.getElementById('browserInfo').innerHTML = 
+                '<strong>Browser Information:</strong><br>' +
+                Object.entries(info).map(([key, value]) => `${key}: ${value}`).join('<br>');
+        }
+        
+        // Initialize page
+        window.onload = function() {
+            showBrowserInfo();
+        };
+    </script>
+</body>
+</html>
